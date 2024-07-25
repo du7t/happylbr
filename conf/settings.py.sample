@@ -1,0 +1,9 @@
+ADS = {}
+
+BALANCERS = {}
+
+DNA = {
+    'DNAURL': "https://dns-api.mydomain",
+}
+
+NETBOX_TOKEN = ""

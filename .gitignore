@@ -1,0 +1,11 @@
+.idea
+__pycache__
+.pytest_cache
+.venv
+.vscode
+settings.py
+cache
+*.sqlite
+samples/rnd*.py
+*.log
+data/*

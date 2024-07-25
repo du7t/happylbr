@@ -1,0 +1,14 @@
+requests
+fire
+pytest
+pytest-mock
+httpx
+coverage
+requests_cache
+rich
+f5-sdk
+acos-client
+retrying
+beartype
+jsondiff
+pre-commit

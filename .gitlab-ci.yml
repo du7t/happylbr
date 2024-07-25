@@ -1,0 +1,53 @@
+stages:
+  - build_base_image
+  - run_tests
+
+variables:
+  DOCKER_REGISTRY: "docker-registry.mydomain"
+
+build_base_image:
+  only:
+    variables:
+    - $CI_COMMIT_BRANCH == "master"
+    changes:
+    - requirements.txt
+    - Dockerfile-base
+  image:
+    name: ${DOCKER_REGISTRY}/lab/kaniko:latest
+    entrypoint: [""]
+  stage: build_base_image
+  script:
+  - cat ${DOCKER_AUTH_CONFIG} > /kaniko/.docker/config.json
+  - /kaniko/executor --dockerfile ./Dockerfile-base --context ./ --destination ${DOCKER_REGISTRY}/lab/happylbr:base
+  tags:
+  - labteam
+
+run_tests:
+  only:
+    variables:
+    - $CI_COMMIT_BRANCH == "master"
+    changes:
+    - conf/*.conf
+    - conf/*.py
+    - libs/*.py
+    - tests/*.py
+    - "*.py"
+    - requirements.txt
+    - .gitlab-ci.yml
+  image:
+    name : ${DOCKER_REGISTRY}/lab/happylbr:base
+  stage: run_tests
+  artifacts:
+    expire_in: 1h
+    paths:
+      - coverage.xml
+      - profile.html
+  script:
+  - pip install -r requirements.txt
+  - cat ${MAIN_SETTINGS} > conf/settings.py
+  - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  - flake8 . --count --max-complexity=20 --max-line-length=128 --statistics --ignore=E402
+  - python -m coverage run -m pytest -v --durations=50 tests/test_*.py -W ignore::DeprecationWarning
+  - python -m coverage xml -i --omit=conf/settings.py
+  tags:
+  - labteam
